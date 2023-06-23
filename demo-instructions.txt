@@ -1,0 +1,60 @@
+1. create src & dist folders
+- dist - where static assets are built to
+- in src folder, create index.js file
+- in dist folder, create index.html file, and add boilerplate
+
+2. npm init -y 
+3. npm install -D webpack webpack-cli
+4. to run webpack, need to create script in package.json for 'npm run build'
+    - "build": "webpack --mode production"
+5. run npm run build, and you'll see main.js file built in dist folder
+6. update index.html script tag to be src='./main.js'
+7. create webpack.config.js file in the root with mode 'development'
+8. change script in package.json to "build":"webpack"
+9. config webpack entry and output like such:
+    entry: path.resolve(__dirname, 'src/index.js'),
+        output: {
+            path: path.resolve(__dirname, 'dist'),
+            filename: 'bundle.js'
+        }
+9. delete main.js file from dist and rebuild. you will see bundle.js in dist
+10. update index.html script src to ./bundle.js
+11. update entry to being an object for potential code splitting, with key of 'bundle'
+12. change filename from outputn to [name].js and it will read the name of the entry point, in our case its still 'bundle'
+13. npm i -D sass style-loader css-loader sass-loader
+14. create styles folder inside src, add a 'main.scss' file and include some css to test styles working
+14. set up style loaders in webpack config, npm run build, and styles should be loaded to browser
+15. install HtmlWebpackPlugin
+    - we dont want to have to keep editing the src/script tag in the index.html file of dist
+    - we want to be able to delete the whole dist file and have it rebuild every time we run npm run build
+    - this plugin will allow us to do this
+    - npm i -D html-webpack-plugin
+    - bring it into our webpack config file like so:
+        - const HtmlWebpackPlugin = require('html-webpack-plugin')
+        - add it to config as plugin (see config file) after modules
+16. Regarding cacheing:
+    - instead of the filename just being bundle.js, we can  add a hash which will change everytime the file changes which helps with cacheing
+    - in the config output, we can make it '[name].[contenthash].js'
+17. create dev script in package.json "dev": "webpack serve"
+    - run npm run dev, and terminal will ask if we want to install webpack-dev-server -- say YES
+    - set up options for devServer in webpack config file
+18. when you make a change to any of the code and then npm run build again, you'll get a new bundle.js file in the dist folder. to prevent this from happening,
+go to webpack config and  in the output, set clean: true
+19. Source Maps
+    - source maps are good for debugging
+    - provide map from dist production code, to source code
+    - right above devServer, add devtool and set it to 'source-map'
+20. for code to be backwards compatible, install babel-loader
+    - npm i -D babel-loader @babel/core @babel/preset-env
+    - go to webpack config and add rule for babel-loader
+21. for using IMAGES
+    - no longer need file-loader, but DO need types. 
+    - when you import an image into your code like so, import laughing from './assets/laughing.svg'
+    and then try to rebuild, youll get a 'missing loader' error
+    - go to webpack config and add rule for images like so:
+    -       {
+                test: /\.(png|svg|jpg|jpeg|gif)$/i,
+                type: 'asset/resource'
+            }
+    - then, go to your output and make sure you put assetModuleFilename: '[name][ext]', if you dont want your images to be renamed during bundling
+
